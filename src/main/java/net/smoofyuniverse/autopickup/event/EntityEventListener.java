@@ -56,7 +56,7 @@ public class EntityEventListener {
 	@Listener(order = Order.POST)
 	public void onPlayerBreakBlock(ChangeBlockEvent.Break e, @Root Player p) {
 		if (AutoPickup.get().isEnabled(p.getWorld()))
-			track(new Data(Type.BLOCK, p.getUniqueId(), p), 2);
+			track(new Data(Type.BLOCK, p.getUniqueId(), p), 1);
 	}
 
 	private void track(Data data, int ticks) {
@@ -71,7 +71,7 @@ public class EntityEventListener {
 			return;
 
 		if (AutoPickup.get().isEnabled(living.getWorld()))
-			track(new Data(Type.ENTITY, living.getUniqueId(), living.lastAttacker().get().flatMap(EntitySnapshot::getUniqueId).flatMap(id -> Sponge.getServer().getPlayer(id)).orElse(null)), 22);
+			track(new Data(Type.ENTITY, living.getUniqueId(), living.lastAttacker().get().flatMap(EntitySnapshot::getUniqueId).flatMap(id -> Sponge.getServer().getPlayer(id)).orElse(null)), 21);
 	}
 
 	@Listener(order = Order.EARLY)
