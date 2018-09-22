@@ -22,6 +22,7 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
+import net.smoofyuniverse.autopickup.message.Message;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -34,14 +35,14 @@ public class ExtendedTypeConfig extends TypeConfig {
 
 	@Override
 	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, this.noDropItem, this.noDropExperience);
+		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage), this.noDropItem, this.noDropExperience);
 	}
 
 	public static class Immutable extends TypeConfig.Immutable {
 		public final boolean noDropItem, noDropExperience;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, boolean noDropItem, boolean noDropExperience) {
-			super(autoPickupItem, autoPickupExperience);
+		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage, boolean noDropItem, boolean noDropExperience) {
+			super(autoPickupItem, autoPickupExperience, fullInventoryMessage);
 			this.noDropItem = noDropItem;
 			this.noDropExperience = noDropExperience;
 		}

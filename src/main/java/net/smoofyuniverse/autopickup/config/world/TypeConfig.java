@@ -22,6 +22,7 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
+import net.smoofyuniverse.autopickup.message.Message;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -31,17 +32,21 @@ public class TypeConfig {
 	public boolean autoPickupItem = true;
 	@Setting(value = "AutoPickup-Experience", comment = "Enable or disable automatic pickup for experience orbs")
 	public boolean autoPickupExperience = true;
+	@Setting(value = "FullInventory-Message", comment = "Message sent to the player when an item can't be picked up")
+	public String fullInventoryMessage = "(action_bar)&4Your inventory is full.";
 
 	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience);
+		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage));
 	}
 
 	public static class Immutable {
 		public final boolean autoPickupItem, autoPickupExperience;
+		public final Message fullInventoryMessage;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience) {
+		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage) {
 			this.autoPickupItem = autoPickupItem;
 			this.autoPickupExperience = autoPickupExperience;
+			this.fullInventoryMessage = fullInventoryMessage;
 		}
 	}
 }

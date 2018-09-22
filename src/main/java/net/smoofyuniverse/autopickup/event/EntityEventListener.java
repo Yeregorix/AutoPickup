@@ -147,6 +147,9 @@ public class EntityEventListener {
 								else
 									item.offer(item.item().set(stack.createSnapshot()));
 							}
+
+							if (!items.isEmpty())
+								typeConfig.fullInventoryMessage.sendTo(data.player);
 						}
 					} else if (typeConfig instanceof ExtendedTypeConfig.Immutable) {
 						if (((ExtendedTypeConfig.Immutable) typeConfig).noDropExperience)
