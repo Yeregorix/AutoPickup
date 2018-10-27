@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.Math.max;
 import static net.smoofyuniverse.autopickup.util.MathUtil.clamp;
 
-@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.0", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
+@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.1", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
 public class AutoPickup {
 	public static final Logger LOGGER = LoggerFactory.getLogger("AutoPickup");
 	private static AutoPickup instance;
