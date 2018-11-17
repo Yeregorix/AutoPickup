@@ -41,7 +41,6 @@ import org.bstats.sponge.MetricsLite2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -206,7 +205,7 @@ public class AutoPickup {
 
 		String latestVersion = null;
 		try {
-			latestVersion = OreAPI.getLatestVersion(OreAPI.getProjectVersions("autopickup"), "7.1.0").orElse(null);
+			latestVersion = OreAPI.getLatestVersion(OreAPI.getProjectVersions("autopickup"), (major, minor) -> major == 7).orElse(null);
 		} catch (Exception e) {
 			LOGGER.info("Failed to check for update", e);
 		}
@@ -230,7 +229,7 @@ public class AutoPickup {
 
 			if (this.globalConfig.updateCheck.consoleDelay != -1) {
 				Task.builder().delayTicks(this.globalConfig.updateCheck.consoleDelay)
-						.execute(() -> Sponge.getServer().getConsole().sendMessage(msg1)).submit(this);
+						.execute(() -> this.game.getServer().getConsole().sendMessage(msg1)).submit(this);
 			}
 
 			if (this.globalConfig.updateCheck.playerDelay != -1)
