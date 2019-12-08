@@ -28,8 +28,10 @@ import net.smoofyuniverse.autopickup.config.world.WorldConfig;
 import net.smoofyuniverse.autopickup.event.EntityEventListener;
 import net.smoofyuniverse.autopickup.event.PlayerEventListener;
 import net.smoofyuniverse.autopickup.event.WorldEventListener;
-import net.smoofyuniverse.autopickup.ore.OreAPI;
 import net.smoofyuniverse.autopickup.util.IOUtil;
+import net.smoofyuniverse.ore.OreAPI;
+import net.smoofyuniverse.ore.project.OreProject;
+import net.smoofyuniverse.ore.project.OreVersion;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -66,7 +68,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.Math.max;
 import static net.smoofyuniverse.autopickup.util.MathUtil.clamp;
 
-@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.3", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
+@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.4", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
 public class AutoPickup {
 	public static final Logger LOGGER = LoggerFactory.getLogger("AutoPickup");
 	private static AutoPickup instance;
@@ -86,6 +88,9 @@ public class AutoPickup {
 
 	private Map<String, WorldConfig.Immutable> configs = new HashMap<>();
 	private GlobalConfig.Immutable globalConfig;
+
+	private OreAPI oreAPI;
+	private OreProject oreProject;
 	private Text[] updateMessages = new Text[0];
 
 	public AutoPickup() {
@@ -189,8 +194,12 @@ public class AutoPickup {
 	public void onServerStarted(GameStartedServerEvent e) {
 		LOGGER.info("AutoPickup " + this.container.getVersion().orElse("?") + " was loaded successfully.");
 
-		if (this.globalConfig.updateCheck.enabled)
+		if (this.globalConfig.updateCheck.enabled) {
+			this.oreAPI = new OreAPI();
+			this.oreProject = new OreProject("autopickup");
+			this.oreProject.setNamespace("Yeregorix", "AutoPickup");
 			Task.builder().async().interval(this.globalConfig.updateCheck.repetitionInterval, TimeUnit.HOURS).execute(this::checkForUpdate).submit(this);
+		}
 	}
 
 	public void checkForUpdate() {
@@ -200,18 +209,16 @@ public class AutoPickup {
 
 		LOGGER.debug("Checking for update ..");
 
-		String latestVersion = null;
+		OreVersion latestVersion = null;
 		try {
-			latestVersion = OreAPI.getLatestVersion(OreAPI.getProjectVersions("autopickup"), (major, minor) -> major == 7).orElse(null);
+			latestVersion = OreVersion.getLatest(this.oreProject.getVersions(this.oreAPI), v -> v.apiVersion.charAt(0) == '7').orElse(null);
 		} catch (Exception e) {
 			LOGGER.info("Failed to check for update", e);
 		}
 
-		if (latestVersion != null && !latestVersion.equals(version)) {
-			String downloadUrl = "https://ore.spongepowered.org/Yeregorix/AutoPickup/versions/" + latestVersion;
-
+		if (latestVersion != null && !latestVersion.name.equals(version)) {
 			Text msg1 = Text.join(Text.of("A new version of AutoPickup is available: "),
-					Text.builder(latestVersion).color(TextColors.AQUA).build(),
+					Text.builder(latestVersion.name).color(TextColors.AQUA).build(),
 					Text.of(". You're currently using version: "),
 					Text.builder(version).color(TextColors.AQUA).build(),
 					Text.of("."));
@@ -219,7 +226,7 @@ public class AutoPickup {
 			Text msg2;
 			try {
 				msg2 = Text.builder("Click here to open the download page.").color(TextColors.GOLD)
-						.onClick(TextActions.openUrl(new URL(downloadUrl))).build();
+						.onClick(TextActions.openUrl(new URL(latestVersion.getPage()))).build();
 			} catch (MalformedURLException e) {
 				msg2 = null;
 			}
