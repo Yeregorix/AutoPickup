@@ -22,29 +22,35 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
+import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
+import net.smoofyuniverse.autopickup.util.collection.BlockSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.item.ItemType;
+
+import java.util.Collection;
+import java.util.Set;
 
 @ConfigSerializable
-public class ExtendedTypeConfig extends TypeConfig {
-	@Setting(value = "NoDrop-Item", comment = "Enable or disable removing items when it's not caused by a player")
-	public boolean noDropItem = false;
-	@Setting(value = "NoDrop-Experience", comment = "Enable or disable removing experience orbs when it's not caused by a player")
-	public boolean noDropExperience = false;
+public class BlockPickupConfig extends PickupConfig {
+	@Setting(value = "Blacklist-Blocks", comment = "Disable automatic pickup for the specified blocks")
+	public BlockSet blacklistBlocks = new BlockSet();
 
 	@Override
 	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage), this.noDropItem, this.noDropExperience);
+		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
+				this.blacklistItems, this.blacklistBlocks.getAll());
 	}
 
-	public static class Immutable extends TypeConfig.Immutable {
-		public final boolean noDropItem, noDropExperience;
+	public static class Immutable extends PickupConfig.Immutable {
+		public final Set<BlockState> blacklistBlocks;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage, boolean noDropItem, boolean noDropExperience) {
-			super(autoPickupItem, autoPickupExperience, fullInventoryMessage);
-			this.noDropItem = noDropItem;
-			this.noDropExperience = noDropExperience;
+		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
+						 Collection<ItemType> blacklistItems, Collection<BlockState> blacklistBlocks) {
+			super(autoPickupItem, autoPickupExperience, fullInventoryMessage, blacklistItems);
+			this.blacklistBlocks = ImmutableSet.copyOf(blacklistBlocks);
 		}
 	}
 }

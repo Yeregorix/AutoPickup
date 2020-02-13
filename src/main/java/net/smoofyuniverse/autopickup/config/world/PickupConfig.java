@@ -22,31 +22,43 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
+import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.item.ItemType;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @ConfigSerializable
-public class TypeConfig {
+public class PickupConfig {
 	@Setting(value = "AutoPickup-Item", comment = "Enable or disable automatic pickup for items")
 	public boolean autoPickupItem = true;
 	@Setting(value = "AutoPickup-Experience", comment = "Enable or disable automatic pickup for experience orbs")
 	public boolean autoPickupExperience = true;
 	@Setting(value = "FullInventory-Message", comment = "Message sent to the player when an item can't be picked up")
 	public String fullInventoryMessage = "(action_bar)&4Your inventory is full.";
+	@Setting(value = "Blacklist-Items", comment = "Disable automatic pickup for the specified items")
+	public Set<ItemType> blacklistItems = new HashSet<>();
 
 	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage));
+		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
+				this.blacklistItems);
 	}
 
 	public static class Immutable {
 		public final boolean autoPickupItem, autoPickupExperience;
 		public final Message fullInventoryMessage;
+		public final Set<ItemType> blacklistItems;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage) {
+		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
+						 Collection<ItemType> blacklistItems) {
 			this.autoPickupItem = autoPickupItem;
 			this.autoPickupExperience = autoPickupExperience;
 			this.fullInventoryMessage = fullInventoryMessage;
+			this.blacklistItems = ImmutableSet.copyOf(blacklistItems);
 		}
 	}
 }

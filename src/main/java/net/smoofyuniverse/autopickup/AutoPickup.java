@@ -24,11 +24,14 @@ package net.smoofyuniverse.autopickup;
 
 import com.google.inject.Inject;
 import net.smoofyuniverse.autopickup.config.global.GlobalConfig;
+import net.smoofyuniverse.autopickup.config.serializer.BlockSetSerializer;
 import net.smoofyuniverse.autopickup.config.world.WorldConfig;
 import net.smoofyuniverse.autopickup.event.EntityEventListener;
 import net.smoofyuniverse.autopickup.event.PlayerEventListener;
 import net.smoofyuniverse.autopickup.event.WorldEventListener;
 import net.smoofyuniverse.autopickup.util.IOUtil;
+import net.smoofyuniverse.autopickup.util.collection.BlockSet;
+import net.smoofyuniverse.autopickup.util.collection.BlockSet.SerializationPredicate;
 import net.smoofyuniverse.ore.OreAPI;
 import net.smoofyuniverse.ore.project.OreProject;
 import net.smoofyuniverse.ore.project.OreVersion;
@@ -39,6 +42,7 @@ import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
@@ -62,7 +66,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.max;
@@ -101,6 +104,8 @@ public class AutoPickup {
 
 	@Listener
 	public void onGamePreInit(GamePreInitializationEvent e) {
+		TypeSerializers.getDefaultSerializers().registerType(BlockSet.TOKEN, new BlockSetSerializer(SerializationPredicate.limit(0.6f)));
+
 		this.worldConfigsDir = this.configDir.resolve("worlds");
 		try {
 			Files.createDirectories(this.worldConfigsDir);
@@ -241,8 +246,11 @@ public class AutoPickup {
 		}
 	}
 
-	public Optional<WorldConfig.Immutable> getConfig(World world) {
-		return Optional.ofNullable(this.configs.get(world.getName()));
+	public WorldConfig.Immutable getConfig(World world) {
+		WorldConfig.Immutable cfg = this.configs.get(world.getName());
+		if (cfg == null)
+			throw new IllegalArgumentException();
+		return cfg;
 	}
 
 	public boolean isEnabled(World world) {

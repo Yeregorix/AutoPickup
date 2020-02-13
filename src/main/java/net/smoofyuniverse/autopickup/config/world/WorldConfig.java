@@ -34,9 +34,9 @@ public class WorldConfig {
 	@Setting(value = "Enabled", comment = "Enable or disable AutoPickup in this world")
 	public boolean enabled = true;
 	@Setting(value = "Entity", comment = "Section related to entities death")
-	public ExtendedTypeConfig entity = new ExtendedTypeConfig();
+	public EntityPickupConfig entity = new EntityPickupConfig();
 	@Setting(value = "Block", comment = "Section related to blocks break")
-	public TypeConfig block = new TypeConfig();
+	public BlockPickupConfig block = new BlockPickupConfig();
 
 	public Immutable toImmutable() {
 		return new Immutable(this.enabled, this.entity.toImmutable(), this.block.toImmutable());
@@ -44,10 +44,10 @@ public class WorldConfig {
 
 	public static class Immutable {
 		public final boolean enabled;
-		public final ExtendedTypeConfig.Immutable entity;
-		public final TypeConfig.Immutable block;
+		public final EntityPickupConfig.Immutable entity;
+		public final BlockPickupConfig.Immutable block;
 
-		public Immutable(boolean enabled, ExtendedTypeConfig.Immutable entity, TypeConfig.Immutable block) {
+		public Immutable(boolean enabled, EntityPickupConfig.Immutable entity, BlockPickupConfig.Immutable block) {
 			this.enabled = enabled;
 			this.entity = entity;
 			this.block = block;
