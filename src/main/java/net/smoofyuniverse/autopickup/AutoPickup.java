@@ -27,14 +27,11 @@ import net.smoofyuniverse.autopickup.config.global.GlobalConfig;
 import net.smoofyuniverse.autopickup.config.serializer.BlockSetSerializer;
 import net.smoofyuniverse.autopickup.config.world.WorldConfig;
 import net.smoofyuniverse.autopickup.event.EntityEventListener;
-import net.smoofyuniverse.autopickup.event.PlayerEventListener;
 import net.smoofyuniverse.autopickup.event.WorldEventListener;
 import net.smoofyuniverse.autopickup.util.IOUtil;
 import net.smoofyuniverse.autopickup.util.collection.BlockSet;
 import net.smoofyuniverse.autopickup.util.collection.BlockSet.SerializationPredicate;
-import net.smoofyuniverse.ore.OreAPI;
-import net.smoofyuniverse.ore.project.OreProject;
-import net.smoofyuniverse.ore.project.OreVersion;
+import net.smoofyuniverse.ore.update.UpdateChecker;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -53,23 +50,13 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.Math.max;
-import static net.smoofyuniverse.autopickup.util.MathUtil.clamp;
 
 @Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.5", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
 public class AutoPickup {
@@ -91,10 +78,6 @@ public class AutoPickup {
 
 	private final Map<String, WorldConfig.Immutable> configs = new HashMap<>();
 	private GlobalConfig.Immutable globalConfig;
-
-	private OreAPI oreAPI;
-	private OreProject oreProject;
-	private Text[] updateMessages = new Text[0];
 
 	public AutoPickup() {
 		if (instance != null)
@@ -122,7 +105,7 @@ public class AutoPickup {
 
 		this.game.getEventManager().registerListeners(this, new WorldEventListener());
 		this.game.getEventManager().registerListeners(this, new EntityEventListener());
-		this.game.getEventManager().registerListeners(this, new PlayerEventListener());
+		this.game.getEventManager().registerListeners(this, new UpdateChecker(LOGGER, this.globalConfig.updateCheck, this.container, "Yeregorix", "AutoPickup"));
 	}
 
 	public void loadGlobalConfig() throws IOException, ObjectMappingException {
@@ -142,12 +125,7 @@ public class AutoPickup {
 		ConfigurationNode cfgNode = root.getNode("Config");
 		GlobalConfig cfg = cfgNode.getValue(GlobalConfig.TOKEN, new GlobalConfig());
 
-		cfg.updateCheck.repetitionInterval = max(cfg.updateCheck.repetitionInterval, 0);
-		cfg.updateCheck.consoleDelay = clamp(cfg.updateCheck.consoleDelay, -1, 100);
-		cfg.updateCheck.playerDelay = clamp(cfg.updateCheck.playerDelay, -1, 100);
-
-		if (cfg.updateCheck.consoleDelay == -1 && cfg.updateCheck.playerDelay == -1)
-			cfg.updateCheck.enabled = false;
+		cfg.updateCheck.normalize();
 
 		version = GlobalConfig.CURRENT_VERSION;
 		root.getNode("Version").setValue(version);
@@ -198,52 +176,6 @@ public class AutoPickup {
 	@Listener
 	public void onServerStarted(GameStartedServerEvent e) {
 		LOGGER.info("AutoPickup " + this.container.getVersion().orElse("?") + " was loaded successfully.");
-
-		if (this.globalConfig.updateCheck.enabled) {
-			this.oreAPI = new OreAPI();
-			this.oreProject = new OreProject("autopickup");
-			this.oreProject.setNamespace("Yeregorix", "AutoPickup");
-			Task.builder().async().interval(this.globalConfig.updateCheck.repetitionInterval, TimeUnit.HOURS).execute(this::checkForUpdate).submit(this);
-		}
-	}
-
-	public void checkForUpdate() {
-		String version = this.container.getVersion().orElse(null);
-		if (version == null)
-			return;
-
-		LOGGER.debug("Checking for update ..");
-
-		OreVersion latestVersion = null;
-		try {
-			latestVersion = OreVersion.getLatest(this.oreProject.getVersions(this.oreAPI), v -> v.apiVersion.charAt(0) == '7').orElse(null);
-		} catch (Exception e) {
-			LOGGER.info("Failed to check for update", e);
-		}
-
-		if (latestVersion != null && !latestVersion.name.equals(version)) {
-			Text msg1 = Text.join(Text.of("A new version of AutoPickup is available: "),
-					Text.builder(latestVersion.name).color(TextColors.AQUA).build(),
-					Text.of(". You're currently using version: "),
-					Text.builder(version).color(TextColors.AQUA).build(),
-					Text.of("."));
-
-			Text msg2;
-			try {
-				msg2 = Text.builder("Click here to open the download page.").color(TextColors.GOLD)
-						.onClick(TextActions.openUrl(new URL(latestVersion.getPage()))).build();
-			} catch (MalformedURLException e) {
-				msg2 = null;
-			}
-
-			if (this.globalConfig.updateCheck.consoleDelay != -1) {
-				Task.builder().delayTicks(this.globalConfig.updateCheck.consoleDelay)
-						.execute(() -> this.game.getServer().getConsole().sendMessage(msg1)).submit(this);
-			}
-
-			if (this.globalConfig.updateCheck.playerDelay != -1)
-				this.updateMessages = msg2 == null ? new Text[]{msg1} : new Text[]{msg1, msg2};
-		}
 	}
 
 	public WorldConfig.Immutable getConfig(World world) {
@@ -262,10 +194,6 @@ public class AutoPickup {
 		if (this.globalConfig == null)
 			throw new IllegalStateException("Config not loaded");
 		return this.globalConfig;
-	}
-
-	public Text[] getUpdateMessages() {
-		return this.updateMessages;
 	}
 
 	public PluginContainer getContainer() {

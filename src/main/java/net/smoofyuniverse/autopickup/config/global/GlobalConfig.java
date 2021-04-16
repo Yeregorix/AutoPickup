@@ -23,6 +23,7 @@
 package net.smoofyuniverse.autopickup.config.global;
 
 import com.google.common.reflect.TypeToken;
+import net.smoofyuniverse.ore.update.UpdateCheckConfig;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
