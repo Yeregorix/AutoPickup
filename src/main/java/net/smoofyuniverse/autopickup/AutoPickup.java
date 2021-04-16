@@ -23,7 +23,6 @@
 package net.smoofyuniverse.autopickup;
 
 import com.google.inject.Inject;
-import net.smoofyuniverse.autopickup.config.global.GlobalConfig;
 import net.smoofyuniverse.autopickup.config.serializer.BlockSetSerializer;
 import net.smoofyuniverse.autopickup.config.world.WorldConfig;
 import net.smoofyuniverse.autopickup.event.EntityEventListener;
@@ -38,7 +37,6 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +75,6 @@ public class AutoPickup {
 	private Path worldConfigsDir;
 
 	private final Map<String, WorldConfig.Immutable> configs = new HashMap<>();
-	private GlobalConfig.Immutable globalConfig;
 
 	public AutoPickup() {
 		if (instance != null)
@@ -96,43 +93,11 @@ public class AutoPickup {
 		}
 		this.configOptions = ConfigurationOptions.defaults().withObjectMapperFactory(this.factory);
 
-		LOGGER.info("Loading global configuration ..");
-		try {
-			loadGlobalConfig();
-		} catch (Exception ex) {
-			LOGGER.error("Failed to load global configuration", ex);
-		}
-
 		this.game.getEventManager().registerListeners(this, new WorldEventListener());
 		this.game.getEventManager().registerListeners(this, new EntityEventListener());
-		this.game.getEventManager().registerListeners(this, new UpdateChecker(LOGGER, this.globalConfig.updateCheck, this.container, "Yeregorix", "AutoPickup"));
-	}
 
-	public void loadGlobalConfig() throws IOException, ObjectMappingException {
-		if (this.globalConfig != null)
-			throw new IllegalStateException("Config already loaded");
-
-		Path file = this.configDir.resolve("global.conf");
-		ConfigurationLoader<CommentedConfigurationNode> loader = createConfigLoader(file);
-
-		CommentedConfigurationNode root = loader.load();
-		int version = root.getNode("Version").getInt();
-		if ((version > GlobalConfig.CURRENT_VERSION || version < GlobalConfig.MINIMUM_VERSION) && IOUtil.backupFile(file)) {
-			LOGGER.info("Your global config version is not supported. A new one will be generated.");
-			root = loader.createEmptyNode();
-		}
-
-		ConfigurationNode cfgNode = root.getNode("Config");
-		GlobalConfig cfg = cfgNode.getValue(GlobalConfig.TOKEN, new GlobalConfig());
-
-		cfg.updateCheck.normalize();
-
-		version = GlobalConfig.CURRENT_VERSION;
-		root.getNode("Version").setValue(version);
-		cfgNode.setValue(GlobalConfig.TOKEN, cfg);
-		loader.save(root);
-
-		this.globalConfig = cfg.toImmutable();
+		this.game.getEventManager().registerListeners(this, new UpdateChecker(LOGGER, this.container,
+				createConfigLoader(this.configDir.resolve("update.conf")), "Yeregorix", "AutoPickup"));
 	}
 
 	public ConfigurationLoader<CommentedConfigurationNode> createConfigLoader(Path file) {
@@ -188,12 +153,6 @@ public class AutoPickup {
 	public boolean isEnabled(World world) {
 		WorldConfig.Immutable cfg = this.configs.get(world.getName());
 		return cfg != null && cfg.enabled;
-	}
-
-	public GlobalConfig.Immutable getGlobalConfig() {
-		if (this.globalConfig == null)
-			throw new IllegalStateException("Config not loaded");
-		return this.globalConfig;
 	}
 
 	public PluginContainer getContainer() {

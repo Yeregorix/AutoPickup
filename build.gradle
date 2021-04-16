@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     compile 'org.spongepowered:spongeapi:7.3.0'
-    compile 'net.smoofyuniverse:oreupdater:1.0.0'
+    compile 'net.smoofyuniverse:oreupdater:1.0.1'
 }
 
 jar {
