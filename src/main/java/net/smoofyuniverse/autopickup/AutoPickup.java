@@ -58,7 +58,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.5", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
+@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.6", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
 public class AutoPickup {
 	public static final Logger LOGGER = LoggerFactory.getLogger("AutoPickup");
 	private static AutoPickup instance;
