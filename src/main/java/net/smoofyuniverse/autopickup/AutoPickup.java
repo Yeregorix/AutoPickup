@@ -32,11 +32,9 @@ import net.smoofyuniverse.autopickup.util.collection.BlockSet;
 import net.smoofyuniverse.autopickup.util.collection.BlockSet.SerializationPredicate;
 import net.smoofyuniverse.ore.update.UpdateChecker;
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +66,7 @@ public class AutoPickup {
 	private Path configDir;
 	@Inject
 	private PluginContainer container;
-	@Inject
-	private GuiceObjectMapperFactory factory;
 
-	private ConfigurationOptions configOptions;
 	private Path worldConfigsDir;
 
 	private final Map<String, WorldConfig.Immutable> configs = new HashMap<>();
@@ -91,7 +86,6 @@ public class AutoPickup {
 			Files.createDirectories(this.worldConfigsDir);
 		} catch (IOException ignored) {
 		}
-		this.configOptions = ConfigurationOptions.defaults().withObjectMapperFactory(this.factory);
 
 		this.game.getEventManager().registerListeners(this, new WorldEventListener());
 		this.game.getEventManager().registerListeners(this, new EntityEventListener());
@@ -101,7 +95,7 @@ public class AutoPickup {
 	}
 
 	public ConfigurationLoader<CommentedConfigurationNode> createConfigLoader(Path file) {
-		return HoconConfigurationLoader.builder().setPath(file).setDefaultOptions(this.configOptions).build();
+		return HoconConfigurationLoader.builder().setPath(file).build();
 	}
 
 	@Listener
