@@ -25,7 +25,7 @@ package net.smoofyuniverse.autopickup;
 import com.google.inject.Inject;
 import net.smoofyuniverse.autopickup.config.serializer.BlockSetSerializer;
 import net.smoofyuniverse.autopickup.config.world.WorldConfig;
-import net.smoofyuniverse.autopickup.event.EntityEventListener;
+import net.smoofyuniverse.autopickup.event.DropListener;
 import net.smoofyuniverse.autopickup.util.IOUtil;
 import net.smoofyuniverse.autopickup.util.collection.BlockSet;
 import net.smoofyuniverse.autopickup.util.collection.BlockSet.SerializationPredicate;
@@ -95,7 +95,7 @@ public class AutoPickup {
 	public void onGameInit(GameInitializationEvent e) {
 		loadConfigs();
 
-		this.game.getEventManager().registerListeners(this, new EntityEventListener(this));
+		this.game.getEventManager().registerListeners(this, new DropListener(this));
 
 		this.game.getEventManager().registerListeners(this, new UpdateChecker(LOGGER, this.container,
 				IOUtil.createConfigLoader(this.configDir.resolve("update.conf")), "Yeregorix", "AutoPickup"));

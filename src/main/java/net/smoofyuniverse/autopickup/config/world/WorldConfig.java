@@ -63,10 +63,10 @@ public class WorldConfig {
 		}
 
 		ConfigurationNode cfgNode = root.getNode("Config");
-		WorldConfig cfg = cfgNode.getValue(WorldConfig.TOKEN, new WorldConfig());
+		WorldConfig cfg = cfgNode.getValue(TOKEN, new WorldConfig());
 
-		root.getNode("Version").setValue(WorldConfig.CURRENT_VERSION);
-		cfgNode.setValue(WorldConfig.TOKEN, cfg);
+		root.getNode("Version").setValue(CURRENT_VERSION);
+		cfgNode.setValue(TOKEN, cfg);
 		loader.save(root);
 		return cfg;
 	}

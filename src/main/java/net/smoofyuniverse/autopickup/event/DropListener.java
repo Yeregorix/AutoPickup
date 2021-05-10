@@ -54,11 +54,11 @@ import org.spongepowered.api.world.World;
 
 import java.util.*;
 
-public class EntityEventListener {
+public class DropListener {
 	private final Map<UUID, Data> trackedCauses = new HashMap<>();
 	private final AutoPickup plugin;
 
-	public EntityEventListener(AutoPickup plugin) {
+	public DropListener(AutoPickup plugin) {
 		this.plugin = plugin;
 	}
 
