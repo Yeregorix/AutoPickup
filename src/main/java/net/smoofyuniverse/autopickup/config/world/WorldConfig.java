@@ -23,13 +23,23 @@
 package net.smoofyuniverse.autopickup.config.world;
 
 import com.google.common.reflect.TypeToken;
+import net.smoofyuniverse.autopickup.AutoPickup;
+import net.smoofyuniverse.autopickup.util.IOUtil;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 @ConfigSerializable
 public class WorldConfig {
 	public static final int CURRENT_VERSION = 1, MINIMUM__VERSION = 1;
 	public static final TypeToken<WorldConfig> TOKEN = TypeToken.of(WorldConfig.class);
+	public static final Immutable DISABLED;
 
 	@Setting(value = "Enabled", comment = "Enable or disable AutoPickup in this world")
 	public boolean enabled = true;
@@ -42,6 +52,25 @@ public class WorldConfig {
 		return new Immutable(this.enabled, this.entity.toImmutable(), this.block.toImmutable());
 	}
 
+	public static WorldConfig load(Path file) throws IOException, ObjectMappingException {
+		ConfigurationLoader<CommentedConfigurationNode> loader = IOUtil.createConfigLoader(file);
+
+		CommentedConfigurationNode root = loader.load();
+		int version = root.getNode("Version").getInt();
+		if ((version > CURRENT_VERSION || version < MINIMUM__VERSION) && IOUtil.backup(file).isPresent()) {
+			AutoPickup.LOGGER.info("Your config version is not supported. A new one will be generated.");
+			root = loader.createEmptyNode();
+		}
+
+		ConfigurationNode cfgNode = root.getNode("Config");
+		WorldConfig cfg = cfgNode.getValue(WorldConfig.TOKEN, new WorldConfig());
+
+		root.getNode("Version").setValue(WorldConfig.CURRENT_VERSION);
+		cfgNode.setValue(WorldConfig.TOKEN, cfg);
+		loader.save(root);
+		return cfg;
+	}
+
 	public static class Immutable {
 		public final boolean enabled;
 		public final EntityPickupConfig.Immutable entity;
@@ -52,5 +81,11 @@ public class WorldConfig {
 			this.entity = entity;
 			this.block = block;
 		}
+	}
+
+	static {
+		WorldConfig cfg = new WorldConfig();
+		cfg.enabled = false;
+		DISABLED = cfg.toImmutable();
 	}
 }

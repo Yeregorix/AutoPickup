@@ -39,6 +39,7 @@ repositories {
 dependencies {
     compile 'org.spongepowered:spongeapi:7.3.0'
     compile 'net.smoofyuniverse:oreupdater:1.0.1'
+    compile 'net.smoofyuniverse:worldmap:1.0.0'
 }
 
 jar {
@@ -51,9 +52,11 @@ shadowJar {
     dependencies {
         include dependency('net.smoofyuniverse:oreapi')
         include dependency('net.smoofyuniverse:oreupdater')
+        include dependency('net.smoofyuniverse:worldmap')
     }
 
     relocate 'net.smoofyuniverse.ore', 'net.smoofyuniverse.autopickup.ore'
+    relocate 'net.smoofyuniverse.map', 'net.smoofyuniverse.autopickup.map'
 }
 
 task updatePlugin <<{

@@ -56,15 +56,21 @@ import java.util.*;
 
 public class EntityEventListener {
 	private final Map<UUID, Data> trackedCauses = new HashMap<>();
+	private final AutoPickup plugin;
+
+	public EntityEventListener(AutoPickup plugin) {
+		this.plugin = plugin;
+	}
 
 	@Listener(order = Order.POST)
 	public void onPlayerBreakBlock(ChangeBlockEvent.Break e, @Root Player player) {
-		if (!AutoPickup.get().isEnabled(player.getWorld()))
+		WorldConfig.Immutable cfg = this.plugin.getConfig(player.getWorld());
+		if (!cfg.enabled)
 			return;
 
-		Set<BlockState> blacklistBlocks = AutoPickup.get().getConfig(player.getWorld()).block.blacklistBlocks;
+		Set<BlockState> blacklist = cfg.block.blacklistBlocks;
 		for (Transaction<BlockSnapshot> t : e.getTransactions()) {
-			if (blacklistBlocks.contains(t.getOriginal().getState()))
+			if (blacklist.contains(t.getOriginal().getState()))
 				return;
 		}
 
@@ -73,7 +79,7 @@ public class EntityEventListener {
 
 	private void track(Data data, int ticks) {
 		this.trackedCauses.put(data.livingCauseId, data);
-		Task.builder().delayTicks(ticks).execute(() -> this.trackedCauses.remove(data.livingCauseId)).submit(AutoPickup.get());
+		Task.builder().delayTicks(ticks).execute(() -> this.trackedCauses.remove(data.livingCauseId)).submit(this.plugin);
 	}
 
 	@Listener(order = Order.POST)
@@ -82,10 +88,8 @@ public class EntityEventListener {
 		if (entity instanceof Humanoid || entity instanceof ArmorStand)
 			return;
 
-		if (!AutoPickup.get().isEnabled(entity.getWorld()))
-			return;
-
-		if (AutoPickup.get().getConfig(entity.getWorld()).entity.blacklistEntities.contains(entity.getType()))
+		WorldConfig.Immutable cfg = this.plugin.getConfig(entity.getWorld());
+		if (!cfg.enabled || cfg.entity.blacklistEntities.contains(entity.getType()))
 			return;
 
 		track(new Data(true, entity.getUniqueId(), entity.lastAttacker().get().flatMap(EntitySnapshot::getUniqueId).orElse(null)), 21);
@@ -107,7 +111,11 @@ public class EntityEventListener {
 			}
 		}
 
-		if (world == null || !AutoPickup.get().isEnabled(world))
+		if (world == null)
+			return;
+
+		WorldConfig.Immutable cfg = this.plugin.getConfig(world);
+		if (!cfg.enabled)
 			return;
 
 		List<ExperienceOrb> orbs = new ArrayList<>();
@@ -128,17 +136,15 @@ public class EntityEventListener {
 		if (orbs.isEmpty() && items.isEmpty())
 			return;
 
-		WorldConfig.Immutable worldConfig = AutoPickup.get().getConfig(world);
 		Player player = data.playerId == null ? null : Sponge.getServer().getPlayer(data.playerId).orElse(null);
-
 		if (player != null) {
 			PickupConfig.Immutable pickupConfig;
 			String typeId;
 			if (data.entity) {
-				pickupConfig = worldConfig.entity;
+				pickupConfig = cfg.entity;
 				typeId = "entity";
 			} else {
-				pickupConfig = worldConfig.block;
+				pickupConfig = cfg.block;
 				typeId = "block";
 			}
 
@@ -178,7 +184,7 @@ public class EntityEventListener {
 					pickupConfig.fullInventoryMessage.sendTo(player);
 			}
 		} else if (data.entity) {
-			EntityPickupConfig.Immutable pickupConfig = worldConfig.entity;
+			EntityPickupConfig.Immutable pickupConfig = cfg.entity;
 
 			if (pickupConfig.noDropExperience)
 				orbs.clear();
