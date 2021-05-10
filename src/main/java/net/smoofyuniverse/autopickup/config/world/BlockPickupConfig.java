@@ -24,7 +24,7 @@ package net.smoofyuniverse.autopickup.config.world;
 
 import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
-import net.smoofyuniverse.autopickup.util.collection.BlockSet;
+import net.smoofyuniverse.autopickup.util.BlockSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.block.BlockState;

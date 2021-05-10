@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.smoofyuniverse.autopickup.util.collection;
+package net.smoofyuniverse.autopickup.util;
 
 import com.google.common.reflect.TypeToken;
 import net.smoofyuniverse.autopickup.AutoPickup;

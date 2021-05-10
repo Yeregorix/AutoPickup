@@ -23,8 +23,8 @@
 package net.smoofyuniverse.autopickup.config.serializer;
 
 import com.google.common.reflect.TypeToken;
-import net.smoofyuniverse.autopickup.util.collection.BlockSet;
-import net.smoofyuniverse.autopickup.util.collection.BlockSet.SerializationPredicate;
+import net.smoofyuniverse.autopickup.util.BlockSet;
+import net.smoofyuniverse.autopickup.util.BlockSet.SerializationPredicate;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
