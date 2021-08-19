@@ -22,14 +22,13 @@
 
 package net.smoofyuniverse.autopickup.message;
 
+import net.kyori.adventure.text.Component;
 import net.smoofyuniverse.autopickup.util.TextUtil;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.chat.ChatTypes;
 
 public interface Message {
 
-	Text getText();
+	Component getComponent();
 
 	void sendTo(Player p);
 
@@ -37,9 +36,7 @@ public interface Message {
 		if (value == null || value.isEmpty())
 			return EmptyMessage.INSTANCE;
 
-		Text text = TextUtil.deserialize(value);
-		if (text.isEmpty())
-			return EmptyMessage.INSTANCE;
+		Component text = TextUtil.deserialize(value);
 
 		String type = null;
 		if (value.charAt(0) == '(') {
@@ -51,17 +48,14 @@ public interface Message {
 		if (type == null)
 			return new ChatMessage(text);
 
-		Text text2 = TextUtil.deserialize(value.substring(type.length() + 2));
-		if (text2.isEmpty())
-			return EmptyMessage.INSTANCE;
-
+		Component text2 = TextUtil.deserialize(value.substring(type.length() + 2));
 		type = type.toLowerCase();
 
 		if (type.equals("chat"))
 			return new ChatMessage(text2);
 
 		if (type.equals("action_bar"))
-			return new ChatMessage(ChatTypes.ACTION_BAR, text2);
+			return new ActionBarMessage(text2);
 
 		if (type.startsWith("title")) {
 			int ticks = 20;

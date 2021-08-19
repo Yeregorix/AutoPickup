@@ -24,37 +24,49 @@ package net.smoofyuniverse.autopickup.config.world;
 
 import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static net.smoofyuniverse.autopickup.util.RegistryUtil.resolveEntityTypes;
+import static net.smoofyuniverse.autopickup.util.RegistryUtil.resolveItemTypes;
+
 @ConfigSerializable
 public class EntityPickupConfig extends PickupConfig {
-	@Setting(value = "Blacklist-Entities", comment = "Disable automatic pickup for the specified entities")
-	public Set<EntityType> blacklistEntities = new HashSet<>();
-	@Setting(value = "NoDrop-Item", comment = "Enable or disable removing items when it's not caused by a player")
+
+	@Comment("Disable automatic pickup for the specified entities")
+	@Setting("Blacklist-Entities")
+	public Set<ResourceKey> blacklistEntities = new HashSet<>();
+
+	@Comment("Enable or disable removing items when it's not caused by a player")
+	@Setting("NoDrop-Item")
 	public boolean noDropItem = false;
-	@Setting(value = "NoDrop-Experience", comment = "Enable or disable removing experience orbs when it's not caused by a player")
+
+	@Comment("Enable or disable removing experience orbs when it's not caused by a player")
+	@Setting("NoDrop-Experience")
 	public boolean noDropExperience = false;
 
 	@Override
-	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
-				this.blacklistItems, this.blacklistEntities, this.noDropItem, this.noDropExperience);
+	public Resolved resolve() {
+		return new Resolved(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
+				resolveItemTypes(this.blacklistItems), resolveEntityTypes(this.blacklistEntities),
+				this.noDropItem, this.noDropExperience);
 	}
 
-	public static class Immutable extends PickupConfig.Immutable {
+	public static class Resolved extends PickupConfig.Resolved {
 		public final boolean noDropItem, noDropExperience;
-		public final Set<EntityType> blacklistEntities;
+		public final Set<EntityType<?>> blacklistEntities;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
-						 Collection<ItemType> blacklistItems, Collection<EntityType> blacklistEntities,
-						 boolean noDropItem, boolean noDropExperience) {
+		public Resolved(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
+						Collection<ItemType> blacklistItems, Collection<EntityType<?>> blacklistEntities,
+						boolean noDropItem, boolean noDropExperience) {
 			super(autoPickupItem, autoPickupExperience, fullInventoryMessage, blacklistItems);
 			this.blacklistEntities = ImmutableSet.copyOf(blacklistEntities);
 			this.noDropItem = noDropItem;

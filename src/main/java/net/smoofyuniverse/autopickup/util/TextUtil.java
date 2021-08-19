@@ -22,14 +22,15 @@
 
 package net.smoofyuniverse.autopickup.util;
 
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class TextUtil {
 
-	public static Text deserialize(String value) {
+	public static Component deserialize(String value) {
 		if (value.startsWith("json:"))
-			return TextSerializers.JSON.deserializeUnchecked(value.substring(5));
-		return TextSerializers.FORMATTING_CODE.deserializeUnchecked(value);
+			return GsonComponentSerializer.gson().deserialize(value.substring(5));
+		return LegacyComponentSerializer.legacyAmpersand().deserialize(value);
 	}
 }

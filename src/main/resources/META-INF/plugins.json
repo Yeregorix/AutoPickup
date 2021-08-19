@@ -1,0 +1,31 @@
+{
+    "plugins": [
+        {
+            "loader": "java_plain",
+            "id": "autopickup",
+            "name": "AutoPickup",
+            "version": "1.1.0",
+            "main-class": "net.smoofyuniverse.autopickup.AutoPickup",
+            "description": "Automatic pickup for items and experience orbs",
+            "links": {
+                "homepage": "https://ore.spongepowered.org/Yeregorix/AutoPickup",
+                "source": "https://github.com/Yeregorix/AutoPickup/",
+                "issues": "https://github.com/Yeregorix/AutoPickup/issues"
+            },
+            "contributors": [
+                {
+                    "name": "Yeregorix",
+                    "description": "Lead Developer"
+                }
+            ],
+            "dependencies": [
+                {
+                    "id": "spongeapi",
+                    "version": "8.0.0",
+                    "load-order": "AFTER",
+                    "optional": false
+                }
+            ]
+        }
+    ]
+}

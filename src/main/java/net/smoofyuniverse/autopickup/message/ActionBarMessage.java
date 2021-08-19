@@ -25,10 +25,10 @@ package net.smoofyuniverse.autopickup.message;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.entity.living.player.Player;
 
-public final class ChatMessage implements Message {
+public final class ActionBarMessage implements Message {
 	public final Component message;
 
-	public ChatMessage(Component message) {
+	public ActionBarMessage(Component message) {
 		this.message = message;
 	}
 
@@ -39,6 +39,6 @@ public final class ChatMessage implements Message {
 
 	@Override
 	public void sendTo(Player p) {
-		p.sendMessage(this.message);
+		p.sendActionBar(this.message);
 	}
 }

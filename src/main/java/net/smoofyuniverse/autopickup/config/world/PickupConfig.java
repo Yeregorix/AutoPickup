@@ -24,37 +24,49 @@ package net.smoofyuniverse.autopickup.config.world;
 
 import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static net.smoofyuniverse.autopickup.util.RegistryUtil.resolveItemTypes;
+
 @ConfigSerializable
 public class PickupConfig {
-	@Setting(value = "AutoPickup-Item", comment = "Enable or disable automatic pickup for items")
-	public boolean autoPickupItem = true;
-	@Setting(value = "AutoPickup-Experience", comment = "Enable or disable automatic pickup for experience orbs")
-	public boolean autoPickupExperience = true;
-	@Setting(value = "FullInventory-Message", comment = "Message sent to the player when an item can't be picked up")
-	public String fullInventoryMessage = "(action_bar)&4Your inventory is full.";
-	@Setting(value = "Blacklist-Items", comment = "Disable automatic pickup for the specified items")
-	public Set<ItemType> blacklistItems = new HashSet<>();
 
-	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
-				this.blacklistItems);
+	@Comment("Enable or disable automatic pickup for items")
+	@Setting("AutoPickup-Item")
+	public boolean autoPickupItem = true;
+
+	@Comment("Enable or disable automatic pickup for experience orbs")
+	@Setting("AutoPickup-Experience")
+	public boolean autoPickupExperience = true;
+
+	@Comment("Message sent to the player when an item can't be picked up")
+	@Setting("FullInventory-Message")
+	public String fullInventoryMessage = "(action_bar)&4Your inventory is full.";
+
+	@Comment("Disable automatic pickup for the specified items")
+	@Setting("Blacklist-Items")
+	public Set<ResourceKey> blacklistItems = new HashSet<>();
+
+	public Resolved resolve() {
+		return new Resolved(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
+				resolveItemTypes(this.blacklistItems));
 	}
 
-	public static class Immutable {
+	public static class Resolved {
 		public final boolean autoPickupItem, autoPickupExperience;
 		public final Message fullInventoryMessage;
 		public final Set<ItemType> blacklistItems;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
-						 Collection<ItemType> blacklistItems) {
+		public Resolved(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
+						Collection<ItemType> blacklistItems) {
 			this.autoPickupItem = autoPickupItem;
 			this.autoPickupExperience = autoPickupExperience;
 			this.fullInventoryMessage = fullInventoryMessage;

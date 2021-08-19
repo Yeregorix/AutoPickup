@@ -20,25 +20,14 @@
  * SOFTWARE.
  */
 
-package net.smoofyuniverse.autopickup.message;
+package net.smoofyuniverse.autopickup.handler;
 
-import net.kyori.adventure.text.Component;
-import org.spongepowered.api.entity.living.player.Player;
+import net.smoofyuniverse.autopickup.config.world.BlockPickupConfig;
 
-public final class ChatMessage implements Message {
-	public final Component message;
+public class BlockDropHandler extends DropHandler<BlockPickupConfig.Resolved> {
+	public static final BlockDropHandler INSTANCE = new BlockDropHandler();
 
-	public ChatMessage(Component message) {
-		this.message = message;
-	}
-
-	@Override
-	public Component getComponent() {
-		return this.message;
-	}
-
-	@Override
-	public void sendTo(Player p) {
-		p.sendMessage(this.message);
+	public BlockDropHandler() {
+		super("block");
 	}
 }

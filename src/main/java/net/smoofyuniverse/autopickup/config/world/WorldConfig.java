@@ -22,70 +22,66 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
-import com.google.common.reflect.TypeToken;
 import net.smoofyuniverse.autopickup.AutoPickup;
 import net.smoofyuniverse.autopickup.util.IOUtil;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 @ConfigSerializable
 public class WorldConfig {
-	public static final int CURRENT_VERSION = 1, MINIMUM__VERSION = 1;
-	public static final TypeToken<WorldConfig> TOKEN = TypeToken.of(WorldConfig.class);
-	public static final Immutable DISABLED;
+	public static final int CURRENT_VERSION = 2, MINIMUM__VERSION = 2;
 
-	@Setting(value = "Enabled", comment = "Enable or disable AutoPickup in this world")
+	@Comment("Enable or disable AutoPickup in this world")
+	@Setting("Enabled")
 	public boolean enabled = true;
-	@Setting(value = "Entity", comment = "Section related to entities death")
+
+	@Comment("Section related to entities death")
+	@Setting("Entity")
 	public EntityPickupConfig entity = new EntityPickupConfig();
-	@Setting(value = "Block", comment = "Section related to blocks break")
+
+	@Comment("Section related to blocks break")
+	@Setting("Block")
 	public BlockPickupConfig block = new BlockPickupConfig();
 
-	public Immutable toImmutable() {
-		return new Immutable(this.enabled, this.entity.toImmutable(), this.block.toImmutable());
+	public Resolved resolve() {
+		return new Resolved(this.enabled, this.entity.resolve(), this.block.resolve());
 	}
 
-	public static WorldConfig load(Path file) throws IOException, ObjectMappingException {
-		ConfigurationLoader<CommentedConfigurationNode> loader = IOUtil.createConfigLoader(file);
+	public static WorldConfig load(Path file) throws IOException {
+		ConfigurationLoader<CommentedConfigurationNode> loader = AutoPickup.get().createConfigLoader(file);
 
 		CommentedConfigurationNode root = loader.load();
-		int version = root.getNode("Version").getInt();
+		int version = root.node("Version").getInt();
 		if ((version > CURRENT_VERSION || version < MINIMUM__VERSION) && IOUtil.backup(file).isPresent()) {
 			AutoPickup.LOGGER.info("Your config version is not supported. A new one will be generated.");
-			root = loader.createEmptyNode();
+			root = loader.createNode();
 		}
 
-		ConfigurationNode cfgNode = root.getNode("Config");
-		WorldConfig cfg = cfgNode.getValue(TOKEN, new WorldConfig());
+		ConfigurationNode cfgNode = root.node("Config");
+		WorldConfig cfg = cfgNode.get(WorldConfig.class, new WorldConfig());
 
-		root.getNode("Version").setValue(CURRENT_VERSION);
-		cfgNode.setValue(TOKEN, cfg);
+		root.node("Version").set(CURRENT_VERSION);
+		cfgNode.set(cfg);
 		loader.save(root);
 		return cfg;
 	}
 
-	public static class Immutable {
+	public static class Resolved {
 		public final boolean enabled;
-		public final EntityPickupConfig.Immutable entity;
-		public final BlockPickupConfig.Immutable block;
+		public final EntityPickupConfig.Resolved entity;
+		public final BlockPickupConfig.Resolved block;
 
-		public Immutable(boolean enabled, EntityPickupConfig.Immutable entity, BlockPickupConfig.Immutable block) {
+		public Resolved(boolean enabled, EntityPickupConfig.Resolved entity, BlockPickupConfig.Resolved block) {
 			this.enabled = enabled;
 			this.entity = entity;
 			this.block = block;
 		}
-	}
-
-	static {
-		WorldConfig cfg = new WorldConfig();
-		cfg.enabled = false;
-		DISABLED = cfg.toImmutable();
 	}
 }

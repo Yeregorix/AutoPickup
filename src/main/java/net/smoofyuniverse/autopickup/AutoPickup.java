@@ -23,36 +23,34 @@
 package net.smoofyuniverse.autopickup;
 
 import com.google.inject.Inject;
-import net.smoofyuniverse.autopickup.config.serializer.BlockSetSerializer;
 import net.smoofyuniverse.autopickup.config.world.WorldConfig;
 import net.smoofyuniverse.autopickup.event.DropListener;
-import net.smoofyuniverse.autopickup.util.BlockSet;
-import net.smoofyuniverse.autopickup.util.BlockSet.SerializationPredicate;
-import net.smoofyuniverse.autopickup.util.IOUtil;
 import net.smoofyuniverse.map.WorldMap;
 import net.smoofyuniverse.map.WorldMapLoader;
 import net.smoofyuniverse.ore.update.UpdateChecker;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.GameReloadEvent;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RefreshGameEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Plugin(id = "autopickup", name = "AutoPickup", version = "1.0.6", authors = "Yeregorix", description = "Automatic pickup for items and experience orbs")
 public class AutoPickup {
-	public static final Logger LOGGER = LoggerFactory.getLogger("AutoPickup");
+	public static final Logger LOGGER = LogManager.getLogger("AutoPickup");
 	private static AutoPickup instance;
 
 	@Inject
@@ -63,8 +61,10 @@ public class AutoPickup {
 	@Inject
 	private PluginContainer container;
 
-	private WorldMapLoader<WorldConfig.Immutable> configMapLoader;
-	private WorldMap<WorldConfig.Immutable> configMap;
+	private ConfigurationOptions configOptions;
+
+	private WorldMapLoader<WorldConfig.Resolved> configMapLoader;
+	private WorldMap<WorldConfig.Resolved> configMap;
 
 	public AutoPickup() {
 		if (instance != null)
@@ -73,56 +73,54 @@ public class AutoPickup {
 	}
 
 	@Listener
-	public void onGamePreInit(GamePreInitializationEvent e) {
-		TypeSerializerCollection.defaults().register(BlockSet.TOKEN, new BlockSetSerializer(SerializationPredicate.limit(0.6f)));
+	public void onConstructPlugin(ConstructPluginEvent e) {
+		this.configOptions = ConfigurationOptions.defaults().serializers(this.game.configManager().serializers());
 
 		try {
 			Files.createDirectories(this.configDir);
 		} catch (IOException ignored) {
 		}
 
-		this.configMapLoader = new WorldMapLoader<WorldConfig.Immutable>(LOGGER,
-				IOUtil.createConfigLoader(this.configDir.resolve("map.conf")),
-				this.configDir.resolve("configs"), WorldConfig.DISABLED) {
+		this.configMapLoader = new WorldMapLoader<WorldConfig.Resolved>(LOGGER,
+				createConfigLoader(this.configDir.resolve("map.conf")),
+				this.configDir.resolve("configs"), new WorldConfig.Resolved(false, null, null)) {
 			@Override
-			protected WorldConfig.Immutable loadConfig(Path file) throws Exception {
-				return WorldConfig.load(file).toImmutable();
+			protected WorldConfig.Resolved loadConfig(Path file) throws Exception {
+				return WorldConfig.load(file).resolve();
 			}
 		};
 	}
 
+	public ConfigurationLoader<CommentedConfigurationNode> createConfigLoader(Path file) {
+		return HoconConfigurationLoader.builder().defaultOptions(this.configOptions).path(file).build();
+	}
+
 	@Listener
-	public void onGameInit(GameInitializationEvent e) {
+	public void onServerStarting(StartingEngineEvent<Server> e) {
 		loadConfigs();
 
-		this.game.getEventManager().registerListeners(this, new DropListener(this));
+		this.game.eventManager().registerListeners(this.container, new DropListener(this));
 
-		this.game.getEventManager().registerListeners(this, new UpdateChecker(LOGGER, this.container,
-				IOUtil.createConfigLoader(this.configDir.resolve("update.conf")), "Yeregorix", "AutoPickup"));
+		this.game.eventManager().registerListeners(this.container, new UpdateChecker(LOGGER, this.container,
+				createConfigLoader(this.configDir.resolve("update.conf")), "Yeregorix", "AutoPickup"));
 	}
 
 	private void loadConfigs() {
-		if (Files.exists(this.configDir.resolve("worlds")) && Files.notExists(this.configDir.resolve("map.conf"))) {
-			LOGGER.info("Updating config directory structure ...");
-			Path worlds = IOUtil.backup(this.configDir).orElse(this.configDir).resolve("worlds");
-			this.configMap = this.configMapLoader.importWorlds(worlds);
-		} else {
-			this.configMap = this.configMapLoader.load();
-		}
+		this.configMap = this.configMapLoader.load();
 	}
 
 	@Listener
-	public void onGameReload(GameReloadEvent e) {
+	public void onRefreshGame(RefreshGameEvent e) {
 		loadConfigs();
 	}
 
 	@Listener
-	public void onServerStarted(GameStartedServerEvent e) {
-		LOGGER.info("AutoPickup " + this.container.getVersion().orElse("?") + " was loaded successfully.");
+	public void onServerStarted(StartedEngineEvent<Server> e) {
+		LOGGER.info("AutoPickup " + this.container.metadata().version() + " was loaded successfully.");
 	}
 
-	public WorldConfig.Immutable getConfig(World world) {
-		return this.configMap.get(world.getProperties());
+	public WorldConfig.Resolved getConfig(ServerWorld world) {
+		return this.configMap.get(world.properties());
 	}
 
 	public PluginContainer getContainer() {

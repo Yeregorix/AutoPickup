@@ -20,25 +20,27 @@
  * SOFTWARE.
  */
 
-package net.smoofyuniverse.autopickup.message;
+package net.smoofyuniverse.autopickup.handler;
 
-import net.kyori.adventure.text.Component;
-import org.spongepowered.api.entity.living.player.Player;
+import net.smoofyuniverse.autopickup.config.world.EntityPickupConfig;
+import org.spongepowered.api.entity.ExperienceOrb;
+import org.spongepowered.api.entity.Item;
 
-public final class ChatMessage implements Message {
-	public final Component message;
+import java.util.List;
 
-	public ChatMessage(Component message) {
-		this.message = message;
+public class EntityDropHandler extends DropHandler<EntityPickupConfig.Resolved> {
+	public static final EntityDropHandler INSTANCE = new EntityDropHandler();
+
+	public EntityDropHandler() {
+		super("entity");
 	}
 
 	@Override
-	public Component getComponent() {
-		return this.message;
-	}
+	protected void handleOther(EntityPickupConfig.Resolved config, List<ExperienceOrb> orbs, List<Item> items) {
+		if (config.noDropExperience)
+			orbs.clear();
 
-	@Override
-	public void sendTo(Player p) {
-		p.sendMessage(this.message);
+		if (config.noDropItem)
+			items.clear();
 	}
 }

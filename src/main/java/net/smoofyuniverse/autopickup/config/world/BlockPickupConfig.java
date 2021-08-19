@@ -24,31 +24,38 @@ package net.smoofyuniverse.autopickup.config.world;
 
 import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
-import net.smoofyuniverse.autopickup.util.BlockSet;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+
+import static net.smoofyuniverse.autopickup.util.RegistryUtil.resolveBlockStates;
+import static net.smoofyuniverse.autopickup.util.RegistryUtil.resolveItemTypes;
 
 @ConfigSerializable
 public class BlockPickupConfig extends PickupConfig {
-	@Setting(value = "Blacklist-Blocks", comment = "Disable automatic pickup for the specified blocks")
-	public BlockSet blacklistBlocks = new BlockSet();
+
+	@Comment("Disable automatic pickup for the specified blocks")
+	@Setting("Blacklist-Blocks")
+	public List<String> blacklistBlocks = new ArrayList<>();
 
 	@Override
-	public Immutable toImmutable() {
-		return new Immutable(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
-				this.blacklistItems, this.blacklistBlocks.getAll());
+	public Resolved resolve() {
+		return new Resolved(this.autoPickupItem, this.autoPickupExperience, Message.of(this.fullInventoryMessage),
+				resolveItemTypes(this.blacklistItems), resolveBlockStates(this.blacklistBlocks));
 	}
 
-	public static class Immutable extends PickupConfig.Immutable {
+	public static class Resolved extends PickupConfig.Resolved {
 		public final Set<BlockState> blacklistBlocks;
 
-		public Immutable(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
-						 Collection<ItemType> blacklistItems, Collection<BlockState> blacklistBlocks) {
+		public Resolved(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
+						Collection<ItemType> blacklistItems, Collection<BlockState> blacklistBlocks) {
 			super(autoPickupItem, autoPickupExperience, fullInventoryMessage, blacklistItems);
 			this.blacklistBlocks = ImmutableSet.copyOf(blacklistBlocks);
 		}

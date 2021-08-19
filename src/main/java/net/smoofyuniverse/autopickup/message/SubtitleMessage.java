@@ -22,24 +22,27 @@
 
 package net.smoofyuniverse.autopickup.message;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.title.Title.Times;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.title.Title;
+
+import static net.kyori.adventure.util.Ticks.duration;
 
 public final class SubtitleMessage implements Message {
 	public final Title title;
 
-	public SubtitleMessage(Text message, int ticks) {
-		this.title = Title.builder().subtitle(message).fadeIn(5).fadeOut(5).stay(ticks).build();
+	public SubtitleMessage(Component message, int ticks) {
+		this.title = Title.title(Component.empty(), message, Times.of(duration(5), duration(ticks), duration(5)));
 	}
 
 	@Override
-	public Text getText() {
-		return this.title.getSubtitle().get();
+	public Component getComponent() {
+		return this.title.subtitle();
 	}
 
 	@Override
 	public void sendTo(Player p) {
-		p.sendTitle(this.title);
+		p.showTitle(this.title);
 	}
 }

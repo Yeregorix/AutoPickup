@@ -22,8 +22,8 @@
 
 package net.smoofyuniverse.autopickup.message;
 
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 
 public final class EmptyMessage implements Message {
 	public static final EmptyMessage INSTANCE = new EmptyMessage();
@@ -31,8 +31,8 @@ public final class EmptyMessage implements Message {
 	private EmptyMessage() {}
 
 	@Override
-	public Text getText() {
-		return Text.EMPTY;
+	public Component getComponent() {
+		return Component.empty();
 	}
 
 	@Override
