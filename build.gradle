@@ -54,7 +54,7 @@ dependencies {
     api 'net.smoofyuniverse:oreupdater:1.1.0-SNAPSHOT'
     api 'net.smoofyuniverse:worldmap:1.1.0-SNAPSHOT'
 
-    spongevanilla 'org.spongepowered:spongevanilla:1.16.5-8.0.0-RC864:universal'
+    spongevanilla 'org.spongepowered:spongevanilla:1.16.5-8.0.0-RC941:universal'
 }
 
 jar {

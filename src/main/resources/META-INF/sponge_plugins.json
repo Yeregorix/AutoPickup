@@ -1,11 +1,15 @@
 {
+    "loader": {
+        "name": "java_plain",
+        "version": "1.0"
+    },
+    "license": "MIT",
     "plugins": [
         {
-            "loader": "java_plain",
             "id": "autopickup",
             "name": "AutoPickup",
             "version": "1.1.0",
-            "main-class": "net.smoofyuniverse.autopickup.AutoPickup",
+            "entrypoint": "net.smoofyuniverse.autopickup.AutoPickup",
             "description": "Automatic pickup for items and experience orbs",
             "links": {
                 "homepage": "https://ore.spongepowered.org/Yeregorix/AutoPickup",
@@ -21,7 +25,7 @@
             "dependencies": [
                 {
                     "id": "spongeapi",
-                    "version": "8.0.0",
+                    "version": "8.0.0-SNAPSHOT",
                     "load-order": "AFTER",
                     "optional": false
                 }
