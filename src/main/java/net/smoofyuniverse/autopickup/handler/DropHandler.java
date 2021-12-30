@@ -28,12 +28,11 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.ExperienceOrb;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class DropHandler<C extends PickupConfig.Resolved> {
 	private final String category;
@@ -42,7 +41,13 @@ public class DropHandler<C extends PickupConfig.Resolved> {
 		this.category = category;
 	}
 
-	public void handle(C config, List<Entity> entities, ServerPlayer player) {
+	public void handle(C config, AffectEntityEvent event, ServerPlayer player) {
+		Set<Entity> entities = new HashSet<>(event.entities());
+		handle(config, entities, player);
+		event.filterEntities(entities::contains);
+	}
+
+	public void handle(C config, Collection<Entity> entities, ServerPlayer player) {
 		List<ExperienceOrb> orbs = new ArrayList<>();
 		List<Item> items = new ArrayList<>();
 

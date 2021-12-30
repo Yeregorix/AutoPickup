@@ -62,7 +62,7 @@ public class DropListener {
 		if (blockConfig.blacklistBlocks.contains(block.state()))
 			return;
 
-		BlockDropHandler.INSTANCE.handle(blockConfig, e.entities(), player);
+		BlockDropHandler.INSTANCE.handle(blockConfig, e, player);
 	}
 
 	@Exclude(SpawnEntityEvent.Pre.class)
@@ -80,6 +80,6 @@ public class DropListener {
 		if (entityConfig.blacklistEntities.contains(entity.type()))
 			return;
 
-		EntityDropHandler.INSTANCE.handle(entityConfig, e.entities(), (ServerPlayer) entity.get(Keys.LAST_ATTACKER).filter(y -> y instanceof ServerPlayer).orElse(null));
+		EntityDropHandler.INSTANCE.handle(entityConfig, e, (ServerPlayer) entity.get(Keys.LAST_ATTACKER).filter(y -> y instanceof ServerPlayer).orElse(null));
 	}
 }
