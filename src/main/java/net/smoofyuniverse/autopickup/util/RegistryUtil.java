@@ -67,7 +67,7 @@ public class RegistryUtil {
 
 				Stream<BlockState> matchedStates = blockTypeRegistry.stream()
 						.flatMap(type -> type.validStates().stream())
-						.filter(state -> pattern.matcher(state.toString()).matches());
+						.filter(state -> pattern.matcher(state.asString()).matches());
 
 				if (negate)
 					matchedStates.forEach(states::remove);
