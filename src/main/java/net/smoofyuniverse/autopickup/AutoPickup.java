@@ -44,11 +44,13 @@ import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Plugin("autopickup")
 public class AutoPickup {
 	public static final Logger LOGGER = LogManager.getLogger("AutoPickup");
 	private static AutoPickup instance;
