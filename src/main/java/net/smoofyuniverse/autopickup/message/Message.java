@@ -23,7 +23,7 @@
 package net.smoofyuniverse.autopickup.message;
 
 import net.kyori.adventure.text.Component;
-import net.smoofyuniverse.autopickup.util.TextUtil;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.spongepowered.api.entity.living.player.Player;
 
 public interface Message {
@@ -32,11 +32,11 @@ public interface Message {
 
 	void sendTo(Player p);
 
-	public static Message of(String value) {
+	static Message of(String value) {
 		if (value == null || value.isEmpty())
 			return EmptyMessage.INSTANCE;
 
-		Component text = TextUtil.deserialize(value);
+		Component text = MiniMessage.miniMessage().deserialize(value);
 
 		String type = null;
 		if (value.charAt(0) == '(') {
@@ -48,7 +48,7 @@ public interface Message {
 		if (type == null)
 			return new ChatMessage(text);
 
-		Component text2 = TextUtil.deserialize(value.substring(type.length() + 2));
+		Component text2 = MiniMessage.miniMessage().deserialize(value.substring(type.length() + 2));
 		type = type.toLowerCase();
 
 		if (type.equals("chat"))

@@ -49,7 +49,7 @@ public class PickupConfig {
 
 	@Comment("Message sent to the player when an item can't be picked up")
 	@Setting("FullInventory-Message")
-	public String fullInventoryMessage = "(action_bar)&4Your inventory is full.";
+	public String fullInventoryMessage = "(action_bar)<dark_red>Your inventory is full.";
 
 	@Comment("Disable automatic pickup for the specified items")
 	@Setting("Blacklist-Items")
