@@ -33,7 +33,7 @@ public final class TitleMessage implements Message {
 	public final Title title;
 
 	public TitleMessage(Component message, int ticks) {
-		this.title = Title.title(message, Component.empty(), Times.of(duration(5), duration(ticks), duration(5)));
+		this.title = Title.title(message, Component.empty(), Times.times(duration(5), duration(ticks), duration(5)));
 	}
 
 	@Override

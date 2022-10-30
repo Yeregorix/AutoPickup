@@ -33,7 +33,7 @@ public final class SubtitleMessage implements Message {
 	public final Title title;
 
 	public SubtitleMessage(Component message, int ticks) {
-		this.title = Title.title(Component.empty(), message, Times.of(duration(5), duration(ticks), duration(5)));
+		this.title = Title.title(Component.empty(), message, Times.times(duration(5), duration(ticks), duration(5)));
 	}
 
 	@Override
