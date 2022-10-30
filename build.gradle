@@ -53,7 +53,7 @@ configurations {
 dependencies {
     api 'org.spongepowered:spongeapi:8.1.0'
 
-    implementation 'net.smoofyuniverse:oreupdater:1.1.1'
+    implementation 'net.smoofyuniverse:oreupdater:1.1.2'
     implementation 'net.smoofyuniverse:worldmap:1.1.0'
 
     spongevanilla 'org.spongepowered:spongevanilla:1.16.5-8.1.0-RC1185:universal'
