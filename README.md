@@ -14,3 +14,4 @@ Tasks:
 
 - `shadowJar` constructs a jar that includes all its dependencies.
 - `setupVanillaServer` setups a vanilla server in directory `run/vanilla`.
+- `setupForgeServer` setups a Forge server in directory `run/forge`.
