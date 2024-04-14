@@ -30,7 +30,7 @@ import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 
 import java.util.*;
 
@@ -94,17 +94,18 @@ public class DropHandler<C extends PickupConfig.Resolved> {
 			Iterator<Item> it = items.iterator();
 			while (it.hasNext()) {
 				Item item = it.next();
-				ItemStack stack = item.item().get().createStack();
+				ItemStackSnapshot stack = item.item().get();
 
 				if (config.blacklistItems.contains(stack.type()))
 					continue;
 
-				inv.offer(stack);
+				List<ItemStackSnapshot> rejectedList = inv.offer(stack.createStack()).rejectedItems();
+				ItemStackSnapshot rejected = rejectedList.isEmpty() ? null : rejectedList.get(0);
 
-				if (stack.isEmpty()) {
+				if (rejected == null || rejected.isEmpty()) {
 					it.remove();
 				} else {
-					item.offer(item.item().set(stack.createSnapshot()));
+					item.offer(item.item().set(rejected));
 					full = true;
 				}
 			}
