@@ -8,10 +8,10 @@ Compiled artifacts and additional information can be found on Ore: https://ore.s
 
 ## Developers
 
-AutoPickup requires Java 8 and Gradle 7 to build.
+AutoPickup requires Java 17 to build.
 
-Tasks:
+Commands:
 
-- `shadowJar` constructs a jar that includes all its dependencies.
-- `setupVanillaServer` setups a vanilla server in directory `run/vanilla`.
-- `setupForgeServer` setups a Forge server in directory `run/forge`.
+- `./gradlew shadowJar` constructs a jar that includes all its dependencies.
+- `./gradlew setupVanillaServer` setups a vanilla server in directory `run/vanilla`.
+- `./gradlew setupForgeServer` setups a Forge server in directory `run/forge`.
