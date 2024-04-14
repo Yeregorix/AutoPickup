@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024 Hugo Dupanloup (Yeregorix)
+ * Copyright (c) $YEAR Hugo Dupanloup (Yeregorix)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,29 +20,3 @@
  * SOFTWARE.
  */
 
-package net.smoofyuniverse.autopickup.message;
-
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.Title.Times;
-import org.spongepowered.api.entity.living.player.Player;
-
-import static net.kyori.adventure.util.Ticks.duration;
-
-public final class SubtitleMessage implements Message {
-	public final Title title;
-
-	public SubtitleMessage(Component message, int ticks) {
-		this.title = Title.title(Component.empty(), message, Times.times(duration(5), duration(ticks), duration(5)));
-	}
-
-	@Override
-	public Component getComponent() {
-		return this.title.subtitle();
-	}
-
-	@Override
-	public void sendTo(Player p) {
-		p.showTitle(this.title);
-	}
-}
