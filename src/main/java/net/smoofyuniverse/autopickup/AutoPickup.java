@@ -118,7 +118,7 @@ public class AutoPickup {
 
 	@Listener
 	public void onServerStarted(StartedEngineEvent<Server> e) {
-		LOGGER.info("AutoPickup " + this.container.metadata().version() + " was loaded successfully.");
+		LOGGER.info("AutoPickup {} was loaded successfully.", this.container.metadata().version());
 	}
 
 	public WorldConfig.Resolved getConfig(ServerWorld world) {

@@ -45,7 +45,7 @@ public class IOUtil {
 		try {
 			Files.move(file, backup);
 		} catch (IOException e) {
-			AutoPickup.LOGGER.warn("Failed to backup: " + backup, e);
+			AutoPickup.LOGGER.warn("Failed to backup: {}", backup, e);
 			return Optional.empty();
 		}
 
