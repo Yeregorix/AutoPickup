@@ -22,7 +22,6 @@
 
 package net.smoofyuniverse.autopickup.util;
 
-import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.AutoPickup;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.block.BlockState;
@@ -121,12 +120,12 @@ public class RegistryUtil {
 		return states;
 	}
 
-	public static ImmutableSet<EntityType<?>> resolveEntityTypes(Iterable<ResourceKey> keys) {
+	public static Set<EntityType<?>> resolveEntityTypes(Iterable<ResourceKey> keys) {
 		return resolve(RegistryTypes.ENTITY_TYPE.get(), keys, "entity types");
 	}
 
-	public static <T> ImmutableSet<T> resolve(Registry<T> registry, Iterable<ResourceKey> keys, String types) {
-		ImmutableSet.Builder<T> values = ImmutableSet.builder();
+	public static <T> Set<T> resolve(Registry<T> registry, Iterable<ResourceKey> keys, String types) {
+		Set<T> values = new HashSet<>();
 		Set<ResourceKey> unknownKeys = new HashSet<>();
 
 		for (ResourceKey key : keys) {
@@ -145,10 +144,10 @@ public class RegistryUtil {
 			AutoPickup.LOGGER.warn(sb.toString());
 		}
 
-		return values.build();
+		return values;
 	}
 
-	public static ImmutableSet<ItemType> resolveItemTypes(Iterable<ResourceKey> keys) {
+	public static Set<ItemType> resolveItemTypes(Iterable<ResourceKey> keys) {
 		return resolve(RegistryTypes.ITEM_TYPE.get(), keys, "item types");
 	}
 }

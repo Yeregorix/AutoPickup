@@ -36,7 +36,6 @@ import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.entity.HarvestEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
@@ -53,7 +52,7 @@ public class DropListener {
 
 	@Exclude(SpawnEntityEvent.Pre.class)
 	@Listener(order = Order.EARLY)
-	public void onSpawnEntity_ChangeBlock(SpawnEntityEvent e, @Root BlockSnapshot block, @First ChangeBlockEvent change, @First ServerPlayer player) {
+	public void onSpawnEntity_ChangeBlock(SpawnEntityEvent e, @Root BlockSnapshot block, @First ServerPlayer player) {
 		WorldConfig.Resolved config = this.plugin.getConfig(player.world());
 		if (!config.enabled)
 			return;

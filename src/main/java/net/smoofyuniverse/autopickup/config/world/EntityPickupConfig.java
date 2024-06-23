@@ -22,7 +22,6 @@
 
 package net.smoofyuniverse.autopickup.config.world;
 
-import com.google.common.collect.ImmutableSet;
 import net.smoofyuniverse.autopickup.message.Message;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.entity.EntityType;
@@ -31,7 +30,6 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,10 +63,10 @@ public class EntityPickupConfig extends PickupConfig {
 		public final Set<EntityType<?>> blacklistEntities;
 
 		public Resolved(boolean autoPickupItem, boolean autoPickupExperience, Message fullInventoryMessage,
-						Collection<ItemType> blacklistItems, Collection<EntityType<?>> blacklistEntities,
+						Set<ItemType> blacklistItems, Set<EntityType<?>> blacklistEntities,
 						boolean noDropItem, boolean noDropExperience) {
 			super(autoPickupItem, autoPickupExperience, fullInventoryMessage, blacklistItems);
-			this.blacklistEntities = ImmutableSet.copyOf(blacklistEntities);
+			this.blacklistEntities = Set.of(blacklistEntities.toArray(new EntityType[0]));
 			this.noDropItem = noDropItem;
 			this.noDropExperience = noDropExperience;
 		}
