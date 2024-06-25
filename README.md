@@ -8,7 +8,7 @@ Compiled artifacts and additional information can be found on Ore: https://ore.s
 
 ## Developers
 
-AutoPickup requires Java 17 to build.
+AutoPickup requires Java 21 to build.
 
 Commands:
 
