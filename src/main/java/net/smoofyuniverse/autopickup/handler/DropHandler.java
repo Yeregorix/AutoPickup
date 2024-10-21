@@ -99,8 +99,8 @@ public class DropHandler<C extends PickupConfig.Resolved> {
 				if (config.blacklistItems.contains(stack.type()))
 					continue;
 
-				List<ItemStackSnapshot> rejectedList = inv.offer(stack.createStack()).rejectedItems();
-				ItemStackSnapshot rejected = rejectedList.isEmpty() ? null : rejectedList.get(0);
+				List<ItemStackSnapshot> rejectedList = inv.offer(stack).rejectedItems();
+				ItemStackSnapshot rejected = rejectedList.isEmpty() ? null : rejectedList.getFirst();
 
 				if (rejected == null || rejected.isEmpty()) {
 					it.remove();
