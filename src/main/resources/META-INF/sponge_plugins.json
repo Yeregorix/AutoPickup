@@ -8,7 +8,7 @@
         {
             "id": "autopickup",
             "name": "AutoPickup",
-            "version": "1.4.0",
+            "version": "1.5.0",
             "entrypoint": "net.smoofyuniverse.autopickup.AutoPickup",
             "description": "Automatic pickup for items and experience orbs",
             "links": {
