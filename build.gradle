@@ -43,8 +43,11 @@ dependencies {
     spongeforge('org.spongepowered:spongeforge:1.21.4-54.1.3-14.0.0-RC2255:universal')
     spongeneo('org.spongepowered:spongeneo:1.21.4-21.4.137-14.0.0-RC2255:universal')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     testRuntimeOnly group: 'org.jacoco', name: 'org.jacoco.core', version: jacoco.toolVersion
 }
 
@@ -71,6 +74,7 @@ test {
     workingDir = layout.buildDirectory.dir("test-run").get().asFile
     environment("SPONGE_PLUGINS", files([sourceSets.main, sourceSets.test].collect { it.output }, configurations.shaded).join("&"))
     jvmArgs("-Dsponge.jacoco.packages=net.smoofyuniverse.autopickup")
+    jvmArgs("-Djunit.platform.launcher.interceptors.enabled=true")
 
     jacoco {
         excludeClassLoaders = ["cpw.mods.modlauncher.TransformingClassLoader"]
